@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beanio xmlns="http://www.beanio.org/2012/03"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd">
+
+    <!-- ═══════════════════════════════════════════════════
+         CORREIOS — delimitado por pipe "|"
+         ═══════════════════════════════════════════════════ -->
+    <stream name="correiosStream" format="delimited">
+        <parser>
+            <property name="delimiter" value="|"/>
+        </parser>
+        <record name="header" order="1" maxOccurs="1">
+            <field name="codigoRastreio" rid="true" literal="codigo_rastreio"/>
+        </record>
+        <record name="ocorrencia" order="2" class="com.demo.spring.batch.reader.correios.CorreiosOcorrenciaDTO">
+            <field name="codigoRastreio"      position="0"  required="true"/>
+            <field name="codigoOcorrencia"    position="1"  required="true"/>
+            <field name="descricaoOcorrencia" position="2"/>
+            <field name="dataOcorrencia"      position="3"  format="dd/MM/yyyy" type="java.time.LocalDate"/>
+            <field name="horaOcorrencia"      position="4"/>
+            <field name="cpfDestinatario"     position="5"/>
+            <field name="nomeDestinatario"    position="6"/>
+            <field name="cepDestino"          position="7"/>
+            <field name="cidadeDestino"       position="8"/>
+            <field name="ufDestino"           position="9"/>
+            <field name="pesoGramas"          position="10" type="java.lang.Integer"/>
+            <field name="valorDeclarado"      position="11" type="java.math.BigDecimal"/>
+        </record>
+    </stream>
+
+    <!-- ═══════════════════════════════════════════════════
+         JADLOG — CSV separado por vírgula
+         ═══════════════════════════════════════════════════ -->
+    <stream name="jadlogStream" format="csv">
+        <parser>
+            <property name="delimiter" value=","/>
+        </parser>
+        <record name="header" order="1" maxOccurs="1">
+            <field name="numeroConhecimento" rid="true" literal="NR_CONHECIMENTO"/>
+        </record>
+        <record name="ocorrencia" order="2" class="com.demo.spring.batch.reader.jadlog.JadlogOcorrenciaDTO">
+            <field name="numeroConhecimento"   position="0"  required="true"/>
+            <field name="dataOcorrencia"       position="1"  format="yyyy-MM-dd" type="java.time.LocalDate"/>
+            <field name="horaOcorrencia"       position="2"/>
+            <field name="codigoOcorrencia"     position="3"  required="true"/>
+            <field name="descricaoOcorrencia"  position="4"/>
+            <field name="cpfCnpjDestinatario"  position="5"/>
+            <field name="nomeDestinatario"     position="6"/>
+            <field name="cepDestino"           position="7"/>
+            <field name="cidadeDestino"        position="8"/>
+            <field name="ufDestino"            position="9"/>
+            <field name="valorFrete"           position="10" type="java.math.BigDecimal"/>
+            <field name="valorMercadoria"      position="11" type="java.math.BigDecimal"/>
+            <field name="numeroDeTentativa"    position="12" type="java.lang.Integer"/>
+        </record>
+    </stream>
+
+    <!-- ═══════════════════════════════════════════════════
+         TOTAL EXPRESS — posicional (fixed-length)
+         Linha: 110 chars
+
+         Col 001-015  numeroEncomenda       (15 chars)
+         Col 016-029  documentoDestinatario (14 chars: CPF padded com espaços / CNPJ)
+         Col 030-051  nomeDestinatario      (22 chars)
+         Col 052-059  cepDestino            ( 8 chars)
+         Col 060-079  cidadeDestino         (20 chars)
+         Col 080-081  ufDestino             ( 2 chars)
+         Col 082-089  dataOcorrencia        ( 8 chars: yyyyMMdd)
+         Col 090-093  horaOcorrencia        ( 4 chars: HHmm)
+         Col 094-096  codigoStatus          ( 3 chars)
+         Col 097-100  pesoGramas            ( 4 chars)
+         Col 101-109  valorMercadoria       ( 9 chars, últimos 2 dígitos = centavos)
+         Col 110      numeroDeTentativa     ( 1 char)
+         ═══════════════════════════════════════════════════ -->
+    <stream name="totalExpressStream" format="fixedlength" ignoreUnidentifiedRecords="true">
+
+        <record name="ocorrencia" order="1"
+                class="com.demo.spring.batch.reader.totalexpress.TotalExpressOcorrenciaRecord">
+            <field name="numeroEncomenda"       at="0"   length="15" trim="true" required="true"/>
+            <field name="documentoDestinatario" at="15"  length="14" trim="true"/>
+            <field name="nomeDestinatario"      at="29"  length="22" trim="true"/>
+            <field name="cepDestino"            at="51"  length="8"  trim="true"/>
+            <field name="cidadeDestino"         at="59"  length="20" trim="true"/>
+            <field name="ufDestino"             at="79"  length="2"  trim="true"/>
+            <field name="dataOcorrencia"        at="81"  length="8"/>
+            <field name="horaOcorrencia"        at="89"  length="4"/>
+            <field name="codigoStatus"          at="93"  length="3"  trim="true" required="true"/>
+            <field name="pesoGramas"            at="96"  length="4"  trim="true" type="java.lang.Integer"/>
+            <field name="valorMercadoria"       at="100" length="9"  type="java.math.BigDecimal"/>
+            <field name="numeroDeTentativa"     at="109" length="1"  type="java.lang.Integer"/>
+        </record>
+
+    </stream>
+
+</beanio>

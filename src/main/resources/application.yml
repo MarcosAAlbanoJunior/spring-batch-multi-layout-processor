@@ -1,2 +1,35 @@
 spring:
   application.name: spring-batch
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/logistica
+    username: postgres
+    password: 123456
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 500
+          order_inserts: true
+
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+      isolation-level-for-create: default
+
+batch:
+  logistica:
+    chunk-size: 500
+    skip-limit: 100
+    arquivo:
+      correios: ${BATCH_ARQUIVO_CORREIOS:src/main/resources/samples/correios_ocorrencias_20240115.csv}
+      jadlog: ${BATCH_ARQUIVO_JADLOG:src/main/resources/samples/jadlog_ocorrencias_20240115.csv}
+      total-express: ${BATCH_ARQUIVO_TOTAL_EXPRESS:src/main/resources/samples/totalexpress_ocorrencias_20240115.txt}
